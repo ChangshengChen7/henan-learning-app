@@ -20,6 +20,7 @@ import com.henan.learning.ui.theme.*
  * 学习页面（红莲设计架构，蔡文姬按模板写代码）
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun LearningScreen(
     viewModel: LearningViewModel,
     onNavigateToProgress: () -> Unit
