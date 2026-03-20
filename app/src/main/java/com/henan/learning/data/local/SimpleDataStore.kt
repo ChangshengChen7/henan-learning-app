@@ -38,7 +38,7 @@ class SimpleDataStore(context: Context) {
     }
     
     suspend fun getKnowledgePointById(id: Long): KnowledgePoint? {
-        return _knowledgePoints.value.find { it.id == id }
+        return _knowledgePoints.value.find { it.id.toLong() == id }
     }
     
     // Learning Progress
