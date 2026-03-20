@@ -21,7 +21,6 @@ import com.henan.learning.ui.theme.*
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun LearningScreen(
     viewModel: LearningViewModel,
     onNavigateToProgress: () -> Unit
