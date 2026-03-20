@@ -22,7 +22,7 @@ import androidx.compose.ui.window.Dialog
 import com.henan.learning.data.model.UserSettings
 import com.henan.learning.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel

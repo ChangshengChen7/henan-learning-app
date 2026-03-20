@@ -5,9 +5,6 @@ import com.henan.learning.data.local.SimpleDataStore
 import com.henan.learning.data.repository.KnowledgeRepository
 import com.henan.learning.data.repository.ProgressRepository
 import com.henan.learning.data.repository.SettingsRepository
-import com.henan.learning.domain.usecase.GetKnowledgePointsUseCase
-import com.henan.learning.domain.usecase.GetStudyStatsUseCase
-import com.henan.learning.domain.usecase.UpdateProgressUseCase
 
 class HenanLearningApp : Application() {
     

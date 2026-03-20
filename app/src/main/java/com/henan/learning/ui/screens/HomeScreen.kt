@@ -55,10 +55,10 @@ fun HomeScreen(
                 // 统计卡片
                 item {
                     StatsCard(
-                        total = uiState.totalKnowledgePoints,
-                        mastered = uiState.masteredCount,
-                        learning = uiState.learningCount,
-                        pending = uiState.pendingCount
+                        total = uiState.stats.totalPoints,
+                        mastered = uiState.stats.totalMastered,
+                        learning = uiState.stats.totalLearned,
+                        pending = uiState.stats.totalPoints - uiState.stats.totalMastered - uiState.stats.totalLearned
                     )
                 }
 

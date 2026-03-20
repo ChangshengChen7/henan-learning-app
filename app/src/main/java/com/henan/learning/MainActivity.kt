@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.henan.learning.ui.screens.*
 
@@ -52,31 +51,27 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     bottomBar = {
                         NavigationBar {
-                            NavigationItem(
-                                route = "home",
-                                icon = Icons.Default.Home,
-                                label = "首页",
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Home, contentDescription = "首页") },
+                                label = { Text("首页") },
                                 selected = selectedRoute == "home",
                                 onClick = { selectedRoute = "home" }
                             )
-                            NavigationItem(
-                                route = "learning",
-                                icon = Icons.Default.School,
-                                label = "学习",
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.School, contentDescription = "学习") },
+                                label = { Text("学习") },
                                 selected = selectedRoute == "learning",
                                 onClick = { selectedRoute = "learning" }
                             )
-                            NavigationItem(
-                                route = "progress",
-                                icon = Icons.Default.TrendingUp,
-                                label = "进度",
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.TrendingUp, contentDescription = "进度") },
+                                label = { Text("进度") },
                                 selected = selectedRoute == "progress",
                                 onClick = { selectedRoute = "progress" }
                             )
-                            NavigationItem(
-                                route = "settings",
-                                icon = Icons.Default.Settings,
-                                label = "设置",
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Settings, contentDescription = "设置") },
+                                label = { Text("设置") },
                                 selected = selectedRoute == "settings",
                                 onClick = { selectedRoute = "settings" }
                             )
@@ -106,20 +101,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@Composable
-private fun NavigationItem(
-    route: String,
-    icon: ImageVector,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    NavigationBarItem(
-        icon = { Icon(icon, contentDescription = label) },
-        label = { Text(label) },
-        selected = selected,
-        onClick = onClick
-    )
 }
