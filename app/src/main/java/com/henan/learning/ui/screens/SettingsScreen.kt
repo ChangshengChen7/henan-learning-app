@@ -9,17 +9,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel
 ) {
     val settings by viewModel.settings.collectAsState()
     
-    var showTimePicker by remember { mutableStateOf(false) }
     var showNumberPicker by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
 
@@ -53,8 +50,7 @@ fun SettingsScreen(
                 ListItem(
                     headlineContent = { Text("推送时间") },
                     supportingContent = { Text(settings.pushTime) },
-                    leadingContent = { Icon(Icons.Default.Timer, null) },
-                    modifier = Modifier.clickable { showTimePicker = true }
+                    leadingContent = { Icon(Icons.Default.Timer, null) }
                 )
             }
             
@@ -112,21 +108,35 @@ fun SettingsScreen(
         }
     }
 
-    if (showTimePicker) {
-        TimePickerDialog(
-            initialHour = 8,
-            initialMinute = 0,
-            onTimeSelected = { hour, minute -> viewModel.updatePushTime(hour, minute) },
-            onDismiss = { showTimePicker = false }
-        )
-    }
-
     if (showNumberPicker) {
-        NumberPickerDialog(
-            initialValue = settings.dailyPushCount,
-            range = 1..10,
-            onValueSelected = { value -> viewModel.updateDailyPushCount(value) },
-            onDismiss = { showNumberPicker = false }
+        var selectedValue by remember { mutableIntStateOf(settings.dailyPushCount) }
+        AlertDialog(
+            onDismissRequest = { showNumberPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.updateDailyPushCount(selectedValue)
+                    showNumberPicker = false
+                }) { Text("确定") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNumberPicker = false }) { Text("取消") }
+            },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("选择数量")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("$selectedValue", style = MaterialTheme.typography.displayMedium)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row {
+                        TextButton(onClick = { if (selectedValue > 1) selectedValue-- }) {
+                            Text("-")
+                        }
+                        TextButton(onClick = { if (selectedValue < 10) selectedValue++ }) {
+                            Text("+")
+                        }
+                    }
+                }
+            }
         )
     }
 
@@ -147,69 +157,4 @@ fun SettingsScreen(
             }
         )
     }
-}
-
-@Composable
-fun TimePickerDialog(
-    initialHour: Int,
-    initialMinute: Int,
-    onTimeSelected: (Int, Int) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val timePickerState = rememberTimePickerState(
-        initialHour = initialHour,
-        initialMinute = initialMinute,
-        is24Hour = true
-    )
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onTimeSelected(timePickerState.hour, timePickerState.minute)
-                onDismiss()
-            }) { Text("确定") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
-        },
-        text = { TimePicker(state = timePickerState) }
-    )
-}
-
-@Composable
-fun NumberPickerDialog(
-    initialValue: Int,
-    range: IntRange,
-    onValueSelected: (Int) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var selectedValue by remember { mutableIntStateOf(initialValue) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onValueSelected(selectedValue)
-                onDismiss()
-            }) { Text("确定") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
-        },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("选择数量", fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("$selectedValue", style = MaterialTheme.typography.displayMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                Row {
-                    TextButton(onClick = { if (selectedValue > range.first) selectedValue-- }) {
-                        Text("-")
-                    }
-                    TextButton(onClick = { if (selectedValue < range.last) selectedValue++ }) {
-                        Text("+")
-                    }
-                }
-            }
-        }
-    )
 }
