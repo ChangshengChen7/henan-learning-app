@@ -12,12 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.henan.learning.data.repository.KnowledgeRepository
-import com.henan.learning.data.repository.ProgressRepository
-import com.henan.learning.data.repository.SettingsRepository
-import com.henan.learning.domain.usecase.GetKnowledgePointsUseCase
-import com.henan.learning.domain.usecase.GetStudyStatsUseCase
-import com.henan.learning.domain.usecase.UpdateProgressUseCase
 import com.henan.learning.ui.screens.*
 
 class MainActivity : ComponentActivity() {
@@ -28,33 +22,29 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             MaterialTheme {
-                val knowledgeRepository = KnowledgeRepository(app.dataStore)
-                val progressRepository = ProgressRepository(app.dataStore)
-                val settingsRepository = app.settingsRepository
-                
                 val homeViewModel: HomeViewModel = viewModel(
                     factory = HomeViewModelFactory(
-                        GetKnowledgePointsUseCase(knowledgeRepository),
-                        GetStudyStatsUseCase(knowledgeRepository, progressRepository)
+                        app.knowledgeRepository,
+                        app.progressRepository
                     )
                 )
                 
                 val learningViewModel: LearningViewModel = viewModel(
                     factory = LearningViewModelFactory(
-                        GetKnowledgePointsUseCase(knowledgeRepository),
-                        UpdateProgressUseCase(progressRepository)
+                        app.knowledgeRepository,
+                        app.progressRepository
                     )
                 )
                 
                 val progressViewModel: ProgressViewModel = viewModel(
-            factory = ProgressViewModelFactory(
-                GetKnowledgePointsUseCase(knowledgeRepository),
-                GetStudyStatsUseCase(knowledgeRepository, progressRepository)
-            )
-        )
-        
-        val settingsViewModel: SettingsViewModel = viewModel(
-                    factory = SettingsViewModelFactory(settingsRepository)
+                    factory = ProgressViewModelFactory(
+                        app.knowledgeRepository,
+                        app.progressRepository
+                    )
+                )
+                
+                val settingsViewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModelFactory(app.settingsRepository)
                 )
                 
                 var selectedRoute by remember { mutableStateOf("home") }
@@ -108,10 +98,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel = learningViewModel,
                                 onNavigateToProgress = { selectedRoute = "progress" }
                             )
-                            "progress" -> ProgressScreen(viewModel = progressViewModel, 
-                                viewModel = homeViewModel,
-                                onNavigateToLearning = { selectedRoute = "learning" }
-                            )
+                            "progress" -> ProgressScreen(viewModel = progressViewModel)
                             "settings" -> SettingsScreen(viewModel = settingsViewModel)
                         }
                     }

@@ -3,28 +3,43 @@ package com.henan.learning.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.henan.learning.data.repository.SettingsRepository
+import com.henan.learning.data.repository.KnowledgeRepository
+import com.henan.learning.data.repository.ProgressRepository
 
 class HomeViewModelFactory(
-    private val getKnowledgePointsUseCase: com.henan.learning.domain.usecase.GetKnowledgePointsUseCase,
-    private val getStudyStatsUseCase: com.henan.learning.domain.usecase.GetStudyStatsUseCase
+    private val knowledgeRepository: KnowledgeRepository,
+    private val progressRepository: ProgressRepository
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel(getKnowledgePointsUseCase, getStudyStatsUseCase) as T
+            return HomeViewModel(knowledgeRepository, progressRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
 class LearningViewModelFactory(
-    private val getKnowledgePointsUseCase: com.henan.learning.domain.usecase.GetKnowledgePointsUseCase,
-    private val updateProgressUseCase: com.henan.learning.domain.usecase.UpdateProgressUseCase
+    private val knowledgeRepository: KnowledgeRepository,
+    private val progressRepository: ProgressRepository
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LearningViewModel::class.java)) {
-            return LearningViewModel(getKnowledgePointsUseCase, updateProgressUseCase) as T
+            return LearningViewModel(knowledgeRepository, progressRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class ProgressViewModelFactory(
+    private val knowledgeRepository: KnowledgeRepository,
+    private val progressRepository: ProgressRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ProgressViewModel::class.java)) {
+            return ProgressViewModel(knowledgeRepository, progressRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -39,18 +54,5 @@ class SettingsViewModelFactory(
             return SettingsViewModel(settingsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
-    }
-}
-
-class ProgressViewModelFactory(
-    private val getKnowledgePointsUseCase: GetKnowledgePointsUseCase,
-    private val getStudyStatsUseCase: GetStudyStatsUseCase
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProgressViewModel::class.java)) {
-            return ProgressViewModel(getKnowledgePointsUseCase, getStudyStatsUseCase) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
