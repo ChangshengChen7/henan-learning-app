@@ -2,121 +2,154 @@ package com.henan.learning.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.henan.learning.data.local.SimpleDataStore
 import com.henan.learning.data.model.KnowledgePoint
-import com.henan.learning.data.model.LearningProgress
-import com.henan.learning.domain.model.StudyStats
-import com.henan.learning.domain.usecase.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+// ============ HomeViewModel ============
+
 data class HomeUiState(
-    val stats: StudyStats = StudyStats(),
-    val todayReviewCount: Int = 0,
+    val totalKnowledgePoints: Int = 0,
+    val masteredCount: Int = 0,
+    val learningCount: Int = 0,
+    val pendingCount: Int = 0,
     val isLoading: Boolean = true
 )
 
 class HomeViewModel(
-    private val getKnowledgePointsUseCase: GetKnowledgePointsUseCase,
-    private val getStudyStatsUseCase: GetStudyStatsUseCase
+    private val dataStore: SimpleDataStore
 ) : ViewModel() {
-
+    
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
+    
     init {
         loadData()
     }
-
+    
     fun loadData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            val stats = getStudyStatsUseCase()
-
-            _uiState.update {
-                it.copy(
-                    stats = stats,
+            // 合并知识点和学习进度
+            dataStore.knowledgePoints.combine(dataStore.learningProgress) { points, progress ->
+                val total = points.size
+                val mastered = progress.count { it.status == "mastered" }
+                val learning = progress.count { it.status == "learning" }
+                val pending = total - mastered - learning
+                
+                HomeUiState(
+                    totalKnowledgePoints = total,
+                    masteredCount = mastered,
+                    learningCount = learning,
+                    pendingCount = pending.coerceAtLeast(0),
                     isLoading = false
                 )
+            }.collect { state ->
+                _uiState.value = state
             }
         }
     }
 }
 
+// ============ LearningViewModel ============
+
 data class LearningUiState(
     val knowledgePoints: List<KnowledgePoint> = emptyList(),
     val selectedCategory: String? = null,
+    val categories: List<String> = emptyList(),
     val isLoading: Boolean = true
 )
 
 class LearningViewModel(
-    private val getKnowledgePointsUseCase: GetKnowledgePointsUseCase,
-    private val reviewKnowledgeUseCase: ReviewKnowledgeUseCase
+    private val dataStore: SimpleDataStore
 ) : ViewModel() {
-
+    
     private val _uiState = MutableStateFlow(LearningUiState())
     val uiState: StateFlow<LearningUiState> = _uiState.asStateFlow()
-
+    
     init {
-        loadKnowledgePoints()
+        loadData()
     }
-
-    fun loadKnowledgePoints(category: String? = null) {
+    
+    fun loadData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, selectedCategory = category) }
-
-            val flow = if (category != null) {
-                getKnowledgePointsUseCase.byCategory(category)
-            } else {
-                getKnowledgePointsUseCase()
-            }
-
-            flow.collect { kps ->
-                _uiState.update {
+            dataStore.knowledgePoints.collect { points ->
+                val categories = points.map { it.category }.distinct()
+                _uiState.update { 
                     it.copy(
-                        knowledgePoints = kps,
+                        knowledgePoints = points,
+                        categories = categories,
                         isLoading = false
                     )
                 }
             }
         }
     }
-
-    fun review(kpId: Int, mastered: Boolean) {
-        viewModelScope.launch {
-            reviewKnowledgeUseCase(kpId, mastered)
+    
+    fun selectCategory(category: String?) {
+        _uiState.update { it.copy(selectedCategory = category) }
+    }
+    
+    fun startLearning(kpId: Int) {
+        dataStore.startLearning(kpId)
+    }
+    
+    fun markAsMastered(kpId: Int) {
+        dataStore.markAsMastered(kpId)
+    }
+    
+    fun getStatus(kpId: Int): String {
+        return dataStore.getStatus(kpId)
+    }
+    
+    fun getFilteredPoints(): List<KnowledgePoint> {
+        val state = _uiState.value
+        return if (state.selectedCategory != null) {
+            state.knowledgePoints.filter { it.category == state.selectedCategory }
+        } else {
+            state.knowledgePoints
         }
     }
 }
 
+// ============ ProgressViewModel ============
+
 data class ProgressUiState(
-    val stats: StudyStats = StudyStats(),
-    val dueForReview: List<LearningProgress> = emptyList(),
+    val totalKnowledgePoints: Int = 0,
+    val masteredCount: Int = 0,
+    val learningCount: Int = 0,
+    val pendingCount: Int = 0,
     val isLoading: Boolean = true
 )
 
 class ProgressViewModel(
-    private val getStudyStatsUseCase: GetStudyStatsUseCase
+    private val dataStore: SimpleDataStore
 ) : ViewModel() {
-
+    
     private val _uiState = MutableStateFlow(ProgressUiState())
     val uiState: StateFlow<ProgressUiState> = _uiState.asStateFlow()
-
+    
     init {
         loadData()
     }
-
+    
     fun loadData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            val stats = getStudyStatsUseCase()
-
-            _uiState.update {
-                it.copy(
-                    stats = stats,
+            dataStore.knowledgePoints.combine(dataStore.learningProgress) { points, progress ->
+                val total = points.size
+                val mastered = progress.count { it.status == "mastered" }
+                val learning = progress.count { it.status == "learning" }
+                val pending = total - mastered - learning
+                
+                ProgressUiState(
+                    totalKnowledgePoints = total,
+                    masteredCount = mastered,
+                    learningCount = learning,
+                    pendingCount = pending.coerceAtLeast(0),
                     isLoading = false
                 )
+            }.collect { state ->
+                _uiState.value = state
             }
         }
     }

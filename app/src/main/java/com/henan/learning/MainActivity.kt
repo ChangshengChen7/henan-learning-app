@@ -11,9 +11,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.henan.learning.ui.screens.*
 import com.henan.learning.ui.theme.HenanLearningTheme
 
+/**
+ * MainActivity（红莲设计）
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             HenanLearningTheme {
-                MainScreen(app)
+                MainScreen(app = app)
             }
         }
     }
@@ -39,6 +43,19 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 @Composable
 fun MainScreen(app: HenanLearningApp) {
     var selectedRoute by remember { mutableStateOf("home") }
+
+    // 创建 ViewModel（直接使用 dataStore）
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(app.dataStore)
+    )
+
+    val learningViewModel: LearningViewModel = viewModel(
+        factory = LearningViewModelFactory(app.dataStore)
+    )
+
+    val progressViewModel: ProgressViewModel = viewModel(
+        factory = ProgressViewModelFactory(app.dataStore)
+    )
 
     val items = listOf(
         Screen.Home,
@@ -68,30 +85,16 @@ fun MainScreen(app: HenanLearningApp) {
         ) {
             when (selectedRoute) {
                 "home" -> HomeScreen(
-                    stats = com.henan.learning.domain.model.StudyStats(
-                        totalKnowledgePoints = 44,
-                        masteredCount = 12,
-                        learningCount = 20,
-                        pendingCount = 12
-                    ),
-                    todayReviewCount = 5,
+                    viewModel = homeViewModel,
                     onNavigateToLearning = { selectedRoute = "learning" },
                     onNavigateToProgress = { selectedRoute = "progress" }
                 )
                 "learning" -> LearningScreen(
-                    knowledgePoints = emptyList(),
-                    selectedCategory = null,
-                    onCategorySelect = { },
-                    onKnowledgeClick = { },
-                    onReview = { _, _ -> }
+                    viewModel = learningViewModel,
+                    onNavigateToProgress = { selectedRoute = "progress" }
                 )
                 "progress" -> ProgressScreen(
-                    stats = com.henan.learning.domain.model.StudyStats(
-                        totalKnowledgePoints = 44,
-                        masteredCount = 12,
-                        learningCount = 20,
-                        pendingCount = 12
-                    )
+                    viewModel = progressViewModel
                 )
                 "settings" -> SettingsScreen()
             }

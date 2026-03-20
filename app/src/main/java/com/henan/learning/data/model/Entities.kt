@@ -1,35 +1,31 @@
 package com.henan.learning.data.model
 
+/**
+ * 知识点（红莲设计）
+ * 
+ * 重要区分：
+ * - difficulty = 难度（知识点属性，不会变）
+ * - status（在 LearningProgress 中）= 掌握状态（会变化）
+ */
 data class KnowledgePoint(
-    val id: Int = 0,
+    val id: Int,
     val title: String,
     val content: String,
-    val category: String = "other",
-    val difficulty: String = "medium",
-    val region: String = "河南省",
-    val createdAt: Long = System.currentTimeMillis()
+    val category: String,
+    val difficulty: String  // "easy" | "medium" | "hard"
 )
 
+/**
+ * 学习进度（红莲设计）
+ * 
+ * status 取值：
+ * - "pending" = 未学习
+ * - "learning" = 学习中
+ * - "mastered" = 已掌握
+ */
 data class LearningProgress(
-    val id: Int = 0,
     val knowledgePointId: Int,
-    val status: String = "pending", // pending, learning, mastered
-    val reviewCount: Int = 0,
-    val lastReviewAt: Long? = null,
-    val nextReviewAt: Long? = null
-)
-
-data class DailyPush(
-    val id: Int = 0,
-    val knowledgePointId: Int,
-    val pushTime: Long,
-    val isPushed: Boolean = false,
-    val date: String = ""
-)
-
-data class UserSettings(
-    val id: Int = 1,
-    val dailyPushEnabled: Boolean = true,
-    val pushTime: String = "08:00",
-    val theme: String = "light"
+    val status: String,  // "pending" | "learning" | "mastered"
+    val reviewCount: Int,
+    val lastReviewAt: Long?
 )

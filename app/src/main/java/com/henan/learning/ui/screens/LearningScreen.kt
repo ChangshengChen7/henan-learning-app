@@ -14,24 +14,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.henan.learning.data.model.KnowledgePoint
-import com.henan.learning.domain.model.Difficulty
 import com.henan.learning.ui.theme.*
 
+/**
+ * 学习页面（红莲设计架构，蔡文姬按模板写代码）
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LearningScreen(
-    knowledgePoints: List<KnowledgePoint>,
-    selectedCategory: String?,
-    onCategorySelect: (String?) -> Unit,
-    onKnowledgeClick: (KnowledgePoint) -> Unit,
-    onReview: (Int, Boolean) -> Unit
+    viewModel: LearningViewModel,
+    onNavigateToProgress: () -> Unit
 ) {
-    val categories = knowledgePoints.map { it.category }.distinct()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("学习中心") },
+                title = { Text("📚 知识学习") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -39,47 +38,158 @@ fun LearningScreen(
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            LazyRow(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                item { FilterChip(selected = selectedCategory == null, onClick = { onCategorySelect(null) }, label = { Text("全部") }) }
-                items(categories) { category -> FilterChip(selected = selectedCategory == category, onClick = { onCategorySelect(category) }, label = { Text(category) }) }
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = PrimaryGreen)
             }
-
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(knowledgePoints, key = { it.id }) { kp -> KnowledgePointCard(knowledgePoint = kp, onClick = { onKnowledgeClick(kp) }, onReview = onReview) }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // 分类筛选
+                item {
+                    CategoryFilter(
+                        categories = uiState.categories,
+                        selectedCategory = uiState.selectedCategory,
+                        onCategorySelected = { viewModel.selectCategory(it) }
+                    )
+                }
+                
+                // 知识点列表
+                val filteredPoints = viewModel.getFilteredPoints()
+                items(filteredPoints) { point ->
+                    KnowledgePointItem(
+                        point = point,
+                        status = viewModel.getStatus(point.id),
+                        onStartLearning = { viewModel.startLearning(point.id) },
+                        onMarkMastered = { viewModel.markAsMastered(point.id) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun KnowledgePointCard(knowledgePoint: KnowledgePoint, onClick: () -> Unit, onReview: (Int, Boolean) -> Unit) {
+private fun CategoryFilter(
+    categories: List<String>,
+    selectedCategory: String?,
+    onCategorySelected: (String?) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            FilterChip(
+                selected = selectedCategory == null,
+                onClick = { onCategorySelected(null) },
+                label = { Text("全部") }
+            )
+        }
+        items(categories) { category ->
+            FilterChip(
+                selected = selectedCategory == category,
+                onClick = { onCategorySelected(category) },
+                label = { Text(category) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun KnowledgePointItem(
+    point: KnowledgePoint,
+    status: String,
+    onStartLearning: () -> Unit,
+    onMarkMastered: () -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-
-    Card(modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }) {
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(knowledgePoint.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AssistChip(onClick = { }, label = { Text(knowledgePoint.category) }, leadingIcon = { Icon(Icons.Default.Category, contentDescription = null, modifier = Modifier.size(16.dp)) })
-                        DifficultyChip(knowledgePoint.difficulty)
-                    }
+                    Text(
+                        point.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        point.category,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
                 }
-                Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = "展开")
+                
+                // 状态标签
+                StatusChip(status = status)
             }
-
+            
+            // 展开显示内容
             if (expanded) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Divider()
+                Text(
+                    point.content,
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(knowledgePoint.content, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    OutlinedButton(onClick = { onReview(knowledgePoint.id, false) }) { Text("继续学习") }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = { onReview(knowledgePoint.id, true) }, colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)) { Text("已掌握") }
+                
+                // 操作按钮
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (status != "mastered") {
+                        Button(
+                            onClick = onStartLearning,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = WarningOrange
+                            )
+                        ) {
+                            Text("开始学习")
+                        }
+                        Button(onClick = onMarkMastered) {
+                            Text("已掌握")
+                        }
+                    } else {
+                        Text(
+                            "✅ 已掌握",
+                            color = SuccessGreen,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            
+            // 展开/收起按钮
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = null
+                    )
+                    Text(if (expanded) "收起" else "展开")
                 }
             }
         }
@@ -87,12 +197,22 @@ private fun KnowledgePointCard(knowledgePoint: KnowledgePoint, onClick: () -> Un
 }
 
 @Composable
-private fun DifficultyChip(difficulty: String) {
-    val difficultyEnum = Difficulty.fromString(difficulty)
-    val color = when (difficultyEnum) {
-        Difficulty.EASY -> DifficultyEasy
-        Difficulty.MEDIUM -> DifficultyMedium
-        Difficulty.HARD -> DifficultyHard
+private fun StatusChip(status: String) {
+    val (color, text) = when (status) {
+        "mastered" -> SuccessGreen to "已掌握"
+        "learning" -> WarningOrange to "学习中"
+        else -> TextSecondary to "未学"
     }
-    AssistChip(onClick = { }, label = { Text(difficultyEnum.toDisplayName()) }, colors = AssistChipDefaults.assistChipColors(containerColor = color.copy(alpha = 0.2f), labelColor = color))
+    
+    Surface(
+        color = color.copy(alpha = 0.1f),
+        shape = MaterialTheme.shapes.small
+    ) {
+        Text(
+            text,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            color = color,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
