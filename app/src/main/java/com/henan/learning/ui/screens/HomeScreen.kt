@@ -105,7 +105,7 @@ private fun StatsCard(
             // 进度条
             val progress = if (total > 0) mastered.toFloat() / total else 0f
             LinearProgressIndicator(
-                progress = { progress },
+                progress = progress,
                 modifier = Modifier.fillMaxWidth(),
                 color = SuccessGreen,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant

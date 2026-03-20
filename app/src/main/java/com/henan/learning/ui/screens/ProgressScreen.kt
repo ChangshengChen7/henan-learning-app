@@ -97,7 +97,7 @@ private fun OverallProgressCard(
                 modifier = Modifier.size(150.dp)
             ) {
                 CircularProgressIndicator(
-                    progress = { progress },
+                    progress = progress,
                     modifier = Modifier.fillMaxSize(),
                     strokeWidth = 12.dp,
                     color = SuccessGreen,
@@ -195,7 +195,7 @@ private fun ProgressItem(
         
         // 简化进度条
         LinearProgressIndicator(
-            progress = { if (value > 0) 1f else 0f },
+            progress = if (value > 0) 1f else 0f,
             modifier = Modifier.fillMaxWidth(),
             color = color,
             trackColor = color.copy(alpha = 0.2f)

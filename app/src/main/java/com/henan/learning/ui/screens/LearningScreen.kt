@@ -20,6 +20,7 @@ import com.henan.learning.ui.theme.*
  * 学习页面（红莲设计架构，蔡文姬按模板写代码）
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LearningScreen(
     viewModel: LearningViewModel,
@@ -77,6 +78,7 @@ fun LearningScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryFilter(
     categories: List<String>,
@@ -106,6 +108,7 @@ private fun CategoryFilter(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun KnowledgePointItem(
     point: KnowledgePoint,
@@ -196,6 +199,7 @@ private fun KnowledgePointItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StatusChip(status: String) {
     val (color, text) = when (status) {
