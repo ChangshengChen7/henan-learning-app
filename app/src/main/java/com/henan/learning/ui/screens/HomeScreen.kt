@@ -57,7 +57,7 @@ private fun StatsCard(stats: StudyStats) {
             }
             Spacer(modifier = Modifier.height(12.dp))
             LinearProgressIndicator(
-                progress = { stats.masteredPercentage / 100f },
+                progress = stats.masteredPercentage / 100f,
                 modifier = Modifier.fillMaxWidth(),
                 color = SuccessGreen
             )

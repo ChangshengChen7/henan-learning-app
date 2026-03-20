@@ -44,7 +44,7 @@ class SimpleDataStore(context: Context) {
     // Learning Progress
     suspend fun insertLearningProgress(progress: LearningProgress) {
         val current = _learningProgress.value.toMutableList()
-        val index = current.indexOfFirst { it.knowledgePointId == progress.knowledgePointId }
+        val index = current.indexOfFirst { it.knowledgePointId.toLong() == progress.knowledgePointId.toLong() }
         if (index >= 0) {
             current[index] = progress
         } else {
@@ -54,7 +54,7 @@ class SimpleDataStore(context: Context) {
     }
     
     suspend fun getLearningProgressByPoint(pointId: Long): LearningProgress? {
-        return _learningProgress.value.find { it.knowledgePointId == pointId }
+        return _learningProgress.value.find { it.knowledgePointId.toLong() == pointId }
     }
     
     // Daily Push

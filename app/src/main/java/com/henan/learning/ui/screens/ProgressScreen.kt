@@ -41,7 +41,7 @@ private fun ProgressOverviewCard(stats: StudyStats) {
         Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("总体进度", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
-            CircularProgressIndicator(progress = { stats.masteredPercentage / 100f }, modifier = Modifier.size(120.dp), strokeWidth = 12.dp, color = SuccessGreen)
+            CircularProgressIndicator(progress = stats.masteredPercentage / 100f, modifier = Modifier.size(120.dp), strokeWidth = 12.dp, color = SuccessGreen)
             Spacer(modifier = Modifier.height(16.dp))
             Text("${stats.masteredPercentage.toInt()}% 掌握度", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
@@ -71,7 +71,7 @@ private fun ProgressBarItem(label: String, value: Int, total: Int, color: androi
             Text("$value", fontWeight = FontWeight.Bold, color = color)
         }
         Spacer(modifier = Modifier.height(4.dp))
-        LinearProgressIndicator(progress = { if (total > 0) value.toFloat() / total else 0f }, modifier = Modifier.fillMaxWidth(), color = color)
+        LinearProgressIndicator(progress = if (total > 0) value.toFloat() / total else 0f, modifier = Modifier.fillMaxWidth(), color = color)
     }
 }
 

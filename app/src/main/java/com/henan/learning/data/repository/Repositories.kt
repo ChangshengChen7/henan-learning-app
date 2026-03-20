@@ -82,7 +82,7 @@ class ProgressRepository(private val dataStore: SimpleDataStore) {
     fun getDueForReview(): Flow<List<LearningProgress>> =
         dataStore.learningProgress.map { progressList ->
             val now = System.currentTimeMillis()
-            progressList.filter { it.nextReviewAt <= now }
+            progressList.filter { it.nextReviewAt != null && it.nextReviewAt!! <= now }
         }
 
     fun getAllProgress(): Flow<List<LearningProgress>> =
