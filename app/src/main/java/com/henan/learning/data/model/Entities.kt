@@ -1,11 +1,6 @@
 package com.henan.learning.data.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "knowledge_points")
 data class KnowledgePoint(
-    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val title: String,
     val content: String,
@@ -15,9 +10,7 @@ data class KnowledgePoint(
     val createdAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "learning_progress")
 data class LearningProgress(
-    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val knowledgePointId: Int,
     val status: String = "pending", // pending, learning, mastered
@@ -26,18 +19,17 @@ data class LearningProgress(
     val nextReviewAt: Long? = null
 )
 
-@Entity(tableName = "daily_push")
 data class DailyPush(
-    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val knowledgePointId: Int,
     val pushTime: Long,
-    val isPushed: Boolean = false
+    val isPushed: Boolean = false,
+    val date: String = ""
 )
 
-@Entity(tableName = "user_settings")
 data class UserSettings(
-    @PrimaryKey
-    val key: String,
-    val value: String
+    val id: Int = 1,
+    val dailyPushEnabled: Boolean = true,
+    val pushTime: String = "08:00",
+    val theme: String = "light"
 )
