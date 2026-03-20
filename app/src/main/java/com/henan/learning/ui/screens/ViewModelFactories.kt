@@ -41,3 +41,16 @@ class SettingsViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
+
+class ProgressViewModelFactory(
+    private val getKnowledgePointsUseCase: GetKnowledgePointsUseCase,
+    private val getStudyStatsUseCase: GetStudyStatsUseCase
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ProgressViewModel::class.java)) {
+            return ProgressViewModel(getKnowledgePointsUseCase, getStudyStatsUseCase) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

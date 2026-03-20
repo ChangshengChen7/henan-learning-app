@@ -46,7 +46,14 @@ class MainActivity : ComponentActivity() {
                     )
                 )
                 
-                val settingsViewModel: SettingsViewModel = viewModel(
+                val progressViewModel: ProgressViewModel = viewModel(
+            factory = ProgressViewModelFactory(
+                GetKnowledgePointsUseCase(knowledgeRepository),
+                GetStudyStatsUseCase(knowledgeRepository, progressRepository)
+            )
+        )
+        
+        val settingsViewModel: SettingsViewModel = viewModel(
                     factory = SettingsViewModelFactory(settingsRepository)
                 )
                 
@@ -101,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel = learningViewModel,
                                 onNavigateToProgress = { selectedRoute = "progress" }
                             )
-                            "progress" -> ProgressScreen(
+                            "progress" -> ProgressScreen(viewModel = progressViewModel, 
                                 viewModel = homeViewModel,
                                 onNavigateToLearning = { selectedRoute = "learning" }
                             )

@@ -165,3 +165,32 @@ class SettingsViewModel(
         _uiState.update { it.copy(message = null) }
     }
 }
+
+// Progress ViewModel
+class ProgressViewModel(
+    private val getKnowledgePointsUseCase: GetKnowledgePointsUseCase,
+    private val getStudyStatsUseCase: GetStudyStatsUseCase
+) : ViewModel() {
+    
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    
+    fun loadData() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val points = getKnowledgePointsUseCase().first()
+                val stats = getStudyStatsUseCase()
+                _uiState.update {
+                    it.copy(
+                        knowledgePoints = points,
+                        stats = stats,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+}

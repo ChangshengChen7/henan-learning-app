@@ -58,14 +58,14 @@ fun SettingsScreen(
                         checked = settings.dailyPushEnabled,
                         onCheckedChange = { viewModel.updateDailyPushEnabled(it) }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsClickItem(
                         icon = Icons.Default.Timer,
                         title = "推送时间",
                         subtitle = settings.pushTime,
                         onClick = { showTimePicker = true }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsClickItem(
                         icon = Icons.Default.Category,
                         title = "每日推送数量",
@@ -93,14 +93,14 @@ fun SettingsScreen(
                         subtitle = "将学习数据备份到云端",
                         onClick = { }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsClickItem(
                         icon = Icons.Default.Restore,
                         title = "数据恢复",
                         subtitle = "从备份恢复学习数据",
                         onClick = { }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsClickItem(
                         icon = Icons.Default.DeleteForever,
                         title = "清除数据",
@@ -118,7 +118,7 @@ fun SettingsScreen(
                         subtitle = "V1.0.0",
                         onClick = { }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsClickItem(
                         icon = Icons.Default.Description,
                         title = "使用说明",
